@@ -385,32 +385,72 @@ iframe {
     Você é a mulher que mexeu com tudo em mim sem nem precisar tentar. Tem algo em você que me prende, me acalma e ao mesmo tempo me enlouquece. Sua força, sua fé, seus sonhos… tudo em você é diferente, é raro, é verdadeiro. Eu não quero só passar um tempo ao seu lado — eu quero a vida inteira. Quero te amar, te proteger e te fazer sentir todos os dias o quanto você é única. Você não tem noção do quanto é especial. E eu sei, no fundo da alma, que é você. ❤️
   </div>
 
-  <script>
-    const inicioRelacionamento = new Date("2025-04-05T12:00:00");
+  <div id="contador"></div>
 
-    function plural(num, singular, plural) {
-      return num === 1 ? `${num} ${singular}` : `${num} ${plural}`;
+<div id="contador"></div>
+
+<script>
+  const inicioRelacionamento = new Date("2025-04-05T12:00:00");
+
+  function plural(num, singular, plural) {
+    return num === 1 ? `${num} ${singular}` : `${num} ${plural}`;
+  }
+
+  function atualizarContador() {
+    const agora = new Date();
+
+    // Parte 1: cálculo de diferença de anos, meses e dias
+    let anos = agora.getFullYear() - inicioRelacionamento.getFullYear();
+    let meses = agora.getMonth() - inicioRelacionamento.getMonth();
+    let dias = agora.getDate() - inicioRelacionamento.getDate();
+
+    if (dias < 0) {
+      meses--;
+      const mesAnterior = new Date(agora.getFullYear(), agora.getMonth(), 0);
+      dias += mesAnterior.getDate();
     }
 
-    function atualizarContador() {
-      const agora = new Date();
-      const diff = agora - inicioRelacionamento;
-      const segundos = Math.floor(diff / 1000);
+    if (meses < 0) {
+      anos--;
+      meses += 12;
+    }
 
-      const anos = Math.floor(segundos / (365 * 24 * 60 * 60));
-      const dias = Math.floor((segundos % (365 * 24 * 60 * 60)) / (24 * 60 * 60));
-      const horas = Math.floor((segundos % (24 * 60 * 60)) / (60 * 60));
-      const minutos = Math.floor((segundos % (60 * 60)) / 60);
-      const seg = segundos % 60;
+    // Parte 2: nova data parcial exata sem ultrapassar o "agora"
+    const dataParcial = new Date(inicioRelacionamento);
+    dataParcial.setFullYear(inicioRelacionamento.getFullYear() + anos);
+    dataParcial.setMonth(inicioRelacionamento.getMonth() + meses);
+    dataParcial.setDate(inicioRelacionamento.getDate() + dias);
 
-      document.getElementById("contador").innerText = 
-  `${plural(anos, "ano", "anos")}, ${plural(dias, "dia", "dias")}, ` +
-  `${plural(horas, "hora", "horas")}, ${plural(minutos, "minuto", "minutos")} ` +
-  `e ${plural(seg, "segundo", "segundos")}`;
-}
+    // Se dataParcial passar de "agora", volta um dia
+    if (dataParcial > agora) {
+      dataParcial.setDate(dataParcial.getDate() - 1);
+      dias--;
+      if (dias < 0) {
+        meses--;
+        const mesAnterior = new Date(dataParcial.getFullYear(), dataParcial.getMonth(), 0);
+        dias += mesAnterior.getDate();
 
-setInterval(atualizarContador, 1000);
-atualizarContador();
+        if (meses < 0) {
+          anos--;
+          meses += 12;
+        }
+      }
+    }
+
+    const diff = agora - dataParcial;
+    const segundos = Math.floor(diff / 1000);
+    const horas = Math.floor((segundos % (24 * 60 * 60)) / (60 * 60));
+    const minutos = Math.floor((segundos % (60 * 60)) / 60);
+    const seg = segundos % 60;
+
+    document.getElementById("contador").innerText =
+      `${plural(anos, "ano", "anos")}, ${plural(meses, "mês", "meses")}, ${plural(dias, "dia", "dias")}, ` +
+      `${plural(horas, "hora", "horas")}, ${plural(minutos, "minuto", "minutos")} ` +
+      `e ${plural(seg, "segundo", "segundos")}`;
+  }
+
+  setInterval(atualizarContador, 1000);
+  atualizarContador();
 
     let slides = document.querySelectorAll('.slide');
     let current = 0;
